@@ -1,0 +1,28 @@
+# Nemr Omni-SaaS Enterprise Security & Routing Configuration
+
+# 1. Force HTTPS
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2. Block Hidden & Sensitive Files (.env, .git, .bak, .json database files)
+<FilesMatch "^\.|\.(env|json|bak|config|sql|sh|log)$">
+    Require all denied
+</FilesMatch>
+
+# Allow api.php to read records.json internally while blocking public URL access
+<Files "records.json">
+    Require all denied
+</Files>
+
+# 3. Enterprise OWASP Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# 4. UTF-8 Character Encoding
+AddDefaultCharset UTF-8

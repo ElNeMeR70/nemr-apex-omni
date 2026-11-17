@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>منظومة النمر الذكية — Nemr Omni-SaaS OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Top Global Header -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="brand-badge">⚡</div>
+      <div>
+        <h1 class="brand-title" id="t-brand-title">منظومة النمر للعمليات الذكية</h1>
+        <p class="brand-sub" id="t-brand-sub">Nemr Omni-Apex Enterprise Dashboard &bull; Live Telemetry</p>
+      </div>
+    </div>
+    <div class="header-controls">
+      <button class="btn btn-glass" onclick="toggleLanguage()" id="btn-lang">🌐 English</button>
+      <button class="btn btn-primary" onclick="openNewModal()">+ <span id="t-btn-new">إضافة سجل جديد</span></button>
+    </div>
+  </header>
+
+  <div class="app-container">
+    
+    <!-- KPI Summary Cards -->
+    <section class="kpi-grid">
+      <div class="glass-card kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-title" id="t-kpi-1-title">إجمالي الإيرادات</span>
+          <span class="kpi-icon">💰</span>
+        </div>
+        <div class="kpi-val" id="kpi-revenue">$28,450</div>
+        <div class="kpi-meta"><span class="trend-up">+14.2%</span> <span id="t-kpi-1-sub">مقارنة بالشهر السابق</span></div>
+      </div>
+
+      <div class="glass-card kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-title" id="t-kpi-2-title">العملاء النشطون</span>
+          <span class="kpi-icon">👥</span>
+        </div>
+        <div class="kpi-val" id="kpi-users">1,420</div>
+        <div class="kpi-meta"><span class="trend-up">+8.7%</span> <span id="t-kpi-2-sub">نمو متواصل</span></div>
+      </div>
+
+      <div class="glass-card kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-title" id="t-kpi-3-title">العمليات المنفذة</span>
+          <span class="kpi-icon">⚡</span>
+        </div>
+        <div class="kpi-val" id="kpi-ops">18,920</div>
+        <div class="kpi-meta"><span class="trend-up">99.98%</span> <span id="t-kpi-3-sub">نسبة استقرار النظام</span></div>
+      </div>
+
+      <div class="glass-card kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-title" id="t-kpi-4-title">درع الأمان السيبراني</span>
+          <span class="kpi-icon">🛡️</span>
+        </div>
+        <div class="kpi-val" style="color:var(--emerald);" id="kpi-security">100%</div>
+        <div class="kpi-meta"><span class="trend-up">Zero CVE</span> <span id="t-kpi-4-sub">حماية نشطة على مدار الساعة</span></div>
+      </div>
+    </section>
+
+    <!-- Main Data Management Table -->
+    <section class="glass-card table-section">
+      <div class="table-header">
+        <div class="table-title-box">
+          <h2 class="table-title" id="t-tbl-title">سجل العمليات والصفقات الحية</h2>
+          <p class="table-sub" id="t-tbl-sub">مزامنة فورية مع قاعدة البيانات المركزية &bull; بحث وتصدير فوري</p>
+        </div>
+        <div class="table-actions">
+          <input type="text" class="input-search" id="input-search" placeholder="بحث بالاسم، البريد، أو المعرف..." oninput="handleSearch(this.value)" />
+          <button class="btn btn-glass" onclick="exportDataCSV()">📥 <span id="t-btn-export">تصدير CSV</span></button>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th id="th-name">الاسم / العميل</th>
+              <th id="th-email">البريد الإلكتروني</th>
+              <th id="th-plan">الخطة / الخدمة</th>
+              <th id="th-status">الحالة</th>
+              <th id="th-amount">القيمة</th>
+              <th id="th-actions">الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Dynamically populated by app.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Modal for New Record -->
+  <div class="modal-overlay" id="record-modal">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h3 id="t-modal-title">إضافة سجل جديد</h3>
+        <span class="modal-close" onclick="closeModal()">✕</span>
+      </div>
+      <form id="record-form" onsubmit="handleFormSubmit(event)">
+        <div class="form-group">
+          <label id="lbl-name">اسم العميل:</label>
+          <input type="text" id="f-name" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label id="lbl-email">البريد الإلكتروني:</label>
+          <input type="email" id="f-email" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label id="lbl-plan">الخطة:</label>
+          <select id="f-plan" class="form-input">
+            <option value="Pro">Pro Enterprise ($49/mo)</option>
+            <option value="Business">Business Scale ($99/mo)</option>
+            <option value="Elite">Elite Sovereign ($199/mo)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="lbl-amount">القيمة ($):</label>
+          <input type="number" id="f-amount" class="form-input" value="49" required />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-glass" onclick="closeModal()" id="btn-cancel">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="btn-save">حفظ وتأكيد</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
