@@ -25,6 +25,7 @@ if str(BASE_DIR) not in sys.path:
 from core.architect import create_saas_blueprint
 from core.quota_sentinel import QuotaSentinel
 from core.security_shield import audit_directory
+from core.php_dev_toolkit import PhpDevToolkit
 
 
 def cmd_plan(args: argparse.Namespace) -> None:
@@ -92,6 +93,46 @@ def cmd_quota(args: argparse.Namespace) -> None:
     print(f"👉 Recommended Active Router Target: {best}\n")
 
 
+def cmd_php_scaffold(args: argparse.Namespace) -> None:
+    entity = args.entity
+    fields_raw = args.fields.split(",") if args.fields else []
+    fields = {}
+    for f in fields_raw:
+        if ":" in f:
+            k, v = f.split(":", 1)
+            fields[k.strip()] = v.strip()
+        else:
+            fields[f.strip()] = "string"
+
+    print(f"\n⚡ Scaffolding PHP 8.3 Enterprise Model & Controller for: {entity}...")
+    files = PhpDevToolkit.scaffold_crud_module(entity, fields)
+    for rel_path, content in files.items():
+        out_path = BASE_DIR / rel_path
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(content, encoding="utf-8")
+        print(f"  ✓ Created: {rel_path}")
+    print("✓ PHP 8.3 Module Scaffolding Complete!\n")
+
+
+def cmd_php_audit(args: argparse.Namespace) -> None:
+    target_dir = Path(args.path).resolve()
+    print(f"\n🛡️ Running Deep PHP 8.3 Security Audit on: {target_dir}...")
+    php_files = list(target_dir.rglob("*.php"))
+    total_issues = 0
+    for pf in php_files:
+        issues = PhpDevToolkit.audit_php_code(pf.read_text(encoding="utf-8", errors="ignore"))
+        if issues:
+            print(f"\n⚠️ File: {pf.relative_to(target_dir)}")
+            for iss in issues:
+                total_issues += 1
+                print(f"  [{iss['severity']}] L{iss['line']}: {iss['message']} -> {iss['code']}")
+
+    if total_issues == 0:
+        print("✓ All PHP source files passed 100% security checks (0 OWASP vulnerabilities detected).\n")
+    else:
+        print(f"\n❌ Found {total_issues} security issues in PHP source files.\n")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="👑 Nemr Omni-Apex: World-Class Autonomous AI Engineering OS"
@@ -117,6 +158,17 @@ def main() -> None:
     # quota
     p_quota = subparsers.add_parser("quota", help="Inspect real-time model quotas and routing")
     p_quota.set_defaults(func=cmd_quota)
+
+    # php-scaffold
+    p_phpscaffold = subparsers.add_parser("php-scaffold", help="Scaffold modern PHP 8.3 Model & Controller")
+    p_phpscaffold.add_argument("entity", type=str, help="Entity name (e.g. Order, Customer)")
+    p_phpscaffold.add_argument("--fields", type=str, default="", help="Comma separated fields (e.g. title:string,amount:float)")
+    p_phpscaffold.set_defaults(func=cmd_php_scaffold)
+
+    # php-audit
+    p_php_audit = subparsers.add_parser("php-audit", help="Run PHP security static analysis")
+    p_php_audit.add_argument("path", type=str, nargs="?", default=".", help="Directory to audit")
+    p_php_audit.set_defaults(func=cmd_php_audit)
 
     args = parser.parse_args()
     args.func(args)

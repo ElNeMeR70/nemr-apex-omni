@@ -16,6 +16,7 @@ from core.architect import create_saas_blueprint
 from core.code_surgeon import CodeSurgeon
 from core.quota_sentinel import QuotaSentinel
 from core.security_shield import audit_directory
+from core.php_dev_toolkit import PhpDevToolkit
 
 
 class TestNemrOmniApex(unittest.TestCase):
@@ -79,6 +80,20 @@ def other_func():
         burn = qs.estimate_task_burn(10000, "gemini-3.8-flash")
         self.assertEqual(burn["estimated_tokens"], 10000)
         self.assertGreater(burn["estimated_usd"], 0)
+
+    def test_php_dev_toolkit_scaffold(self):
+        files = PhpDevToolkit.scaffold_crud_module("Invoice", {"amount": "float", "customer": "string"})
+        self.assertIn("src/Models/Invoice.php", files)
+        self.assertIn("readonly class Invoice", files["src/Models/Invoice.php"])
+        self.assertIn("src/Controllers/InvoiceController.php", files)
+
+    def test_php_dev_toolkit_audit(self):
+        vuln_code = "<?php echo $_GET['user']; $q = 'SELECT * FROM users WHERE id = ' . $_POST['id']; ?>"
+        issues = PhpDevToolkit.audit_php_code(vuln_code)
+        self.assertGreaterEqual(len(issues), 2)
+        issue_types = [i["type"] for i in issues]
+        self.assertIn("SQL_INJECTION", issue_types)
+        self.assertIn("REFLECTED_XSS", issue_types)
 
 
 if __name__ == "__main__":
